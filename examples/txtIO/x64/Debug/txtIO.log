@@ -1,0 +1,6 @@
+﻿  txtIO.cpp
+c:\program files\pcl 1.8.0\include\pcl-1.8\pcl\point_traits.h : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+c:\program files\pcl 1.8.0\include\pcl-1.8\pcl\visualization\interactor_style.h : warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+c:\program files\pcl 1.8.0\include\pcl-1.8\pcl\visualization\pcl_visualizer.h(1618): warning C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+  txtIO.vcxproj -> C:\Users\彭以平\Desktop\dataIO\examples\x64\Debug\txtIO.exe
+  txtIO.vcxproj -> C:\Users\彭以平\Desktop\dataIO\examples\x64\Debug\txtIO.pdb (Partial PDB)
