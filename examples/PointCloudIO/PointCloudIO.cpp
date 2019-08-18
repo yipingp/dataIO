@@ -7,10 +7,10 @@ int main()
 	dataIO<PointT> file;
 	file.path = "..\\testSamples\\pointcloud\\";
 
-	file.pcFilename = "bun045.ply";
-	pcl::PointCloud<PointT> src = file.readPC();
-	file.pcFilename = "bun000.ply";
+	file.filename = "bun000.ply";
 	pcl::PointCloud<PointT> tgt = file.readPC();
+	file.filename = "bun045.ply";
+	pcl::PointCloud<PointT> src = file.readPC();
 	
 	pcl::PointCloud<PointT> res;
 	pcl::PointCloud<PointT> cloudEmpty;

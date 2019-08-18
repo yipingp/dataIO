@@ -5,7 +5,7 @@ int main()
 	dataIO<> file;
 	file.path= "..\\testSamples\\ExtractKeypts\\";
 
-	file.imgFilename = "1.jpg";
+	file.filename = "1.jpg";
 	cv::Mat img = file.readImg();
 
 	// keyPts = extract(img)   // Extracting keypoints from img...
@@ -14,7 +14,6 @@ int main()
 	keyPts.push_back(pt);
 	keyPts.push_back(pt);
 
-	file.txtFilename = file.imgFilename;
 	file.save2dPts(keyPts, "_keyPts");
 
 	return 0;

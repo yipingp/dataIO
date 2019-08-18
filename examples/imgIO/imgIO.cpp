@@ -5,7 +5,7 @@ int main()
 	dataIO<> file;
 	file.path = "..\\testSamples\\img\\";
 
-	file.imgFilename = "img1.jpg";
+	file.filename = "img1.jpg";
 	cv::Mat img = file.readImg();
 
 	// processing img...

@@ -10,7 +10,7 @@ int main()
 	file.getAllFiles();
 	for (int i = 0; i < file.ownnames.size(); i++)
 	{
-		file.imgFilename = file.ownnames[i];
+		file.filename = file.ownnames[i];
 		cv::Mat img = file.readImg();
 
 		// processing current img...

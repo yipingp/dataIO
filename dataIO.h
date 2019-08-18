@@ -1,4 +1,7 @@
-#include <iostream>
+#pragma once
+#ifndef _DATAIO
+#define _DATAIO
+
 #include <string>
 #include <vector>
 
@@ -6,17 +9,10 @@
 
 #include <opencv2/opencv.hpp>
 
-
 #include <pcl/io/io.h>
 #include <pcl/io/ply_io.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/visualization/pcl_visualizer.h>
-
-
-
-
-#ifndef _DATAIO
-#define _DATAIO
 
 using namespace std;
 
@@ -29,33 +25,31 @@ public:
 
 	// txt
 
-	string txtFilename;
+	string filename;
 
 	int save2dPts(vector<cv::Point2f> &Data, string addName);
 	int save3dPts(vector<cv::Point3f> &Data, string addName);
-	vector<cv::Point2f> read2dPts();
-	vector<cv::Point3f> read3dPts();
+	vector<cv::Point2f> read2dPts(string addName = "");
+	vector<cv::Point3f> read3dPts(string addName = "");
 
 	// files
 
 	// file names with path
-	vector<string> files;
+	vector<string> filepaths;
 	// file names without path
 	vector<string> ownnames;
+	void GetAllFiles(string path, vector<string>& filepaths, vector<string> &ownname);
 	void getAllFiles();
 
 	// image
-
-	string imgFilename;
+	
 	cv::Mat readImg(int flags = CV_LOAD_IMAGE_UNCHANGED);
-	bool saveImg(cv::Mat img, string addName);
+	bool saveImg(cv::Mat img, string addName = "");
 
 	// point cloud io
 
-	string pcFilename;
-
 	pcl::PointCloud<PointType> readPC();
-	void savePC(pcl::PointCloud<PointType> cloud, string addName);
+	void savePC(pcl::PointCloud<PointType> cloud, string addName = "", string suffix = "");
 
 	// point cloud rendering
 
@@ -70,7 +64,6 @@ public:
 	// scale of coordinate  default: 0.1m
 	double coordinateScale = 0.1;
 
-
 	void PCrender(pcl::PointCloud<PointType> cloudView1, pcl::PointCloud<PointType> cloudView2, pcl::PointCloud<PointType> cloudView3, pcl::PointCloud<PointType> cloudView4);
 	
 
@@ -80,12 +73,12 @@ public:
 // txt
 /*
 @param Data 2d points data you want to save.
-@param addName Name that will be insert into the end of file name and suffix name.
+@param addName Name that will be insert into the end of file's pure name and suffix name.
 */
 template <class PointType>
 int dataIO<PointType>::save2dPts(vector<cv::Point2f> &Data, string addName)
 {
-	string pureName = txtFilename.substr(0, txtFilename.rfind(".")); // 获取不带后缀名的纯文件名 // rfind = reverse find
+	string pureName = filename.substr(0, filename.rfind(".")); // 获取不带后缀名的纯文件名 // rfind = reverse find
 	string suffix = ".txt";
 	if (savePath == "")
 		savePath = path;
@@ -110,12 +103,12 @@ int dataIO<PointType>::save2dPts(vector<cv::Point2f> &Data, string addName)
 
 /*
 @param Data 3d points data you want to save.
-@param addName Name that will be insert into the end of file name and suffix name.
+@param addName Name that will be insert into the end of file's pure name and suffix name.
 */
 template <class PointType>
 int dataIO<PointType>::save3dPts(vector<cv::Point3f> &Data,string addName)
 {
-	string pureName = txtFilename.substr(0, txtFilename.rfind("."));
+	string pureName = filename.substr(0, filename.rfind("."));
 	string suffix = ".txt";
 	if (savePath == "")
 		savePath = path;
@@ -138,10 +131,15 @@ int dataIO<PointType>::save3dPts(vector<cv::Point3f> &Data,string addName)
 	return 0;
 }
 
+/*
+@param addName Name that will be insert into the end of file's pure name and suffix name.
+*/
 template <class PointType>
-vector<cv::Point2f> dataIO<PointType>::read2dPts()
+vector<cv::Point2f> dataIO<PointType>::read2dPts(string addName)
 {
-	string openFilename = path + txtFilename;
+	string pureName = filename.substr(0, filename.rfind("."));
+	string suffix = ".txt";
+	string openFilename = path + pureName + addName + suffix;
 	vector<cv::Point2f> pts;
 	ifstream readTXT;
 	readTXT.open(openFilename.data());   //将文件流对象与文件连接起来 
@@ -158,10 +156,15 @@ vector<cv::Point2f> dataIO<PointType>::read2dPts()
 	return pts;
 }
 
+/*
+@param addName Name that will be insert into the end of file's pure name and suffix name.
+*/
 template <class PointType>
-vector<cv::Point3f> dataIO<PointType>::read3dPts()
+vector<cv::Point3f> dataIO<PointType>::read3dPts(string addName)
 {
-	string openFilename = path + txtFilename;
+	string pureName = filename.substr(0, filename.rfind("."));
+	string suffix = ".txt";
+	string openFilename = path + pureName + addName + suffix;
 	vector<cv::Point3f> pts;
 	ifstream readTXT;
 	readTXT.open(openFilename.data());   //将文件流对象与文件连接起来 
@@ -182,10 +185,11 @@ vector<cv::Point3f> dataIO<PointType>::read3dPts()
 /* 
 * https://www.cnblogs.com/yuehouse/p/10159358.html
 * path为文件夹路径
-* files存储文件的路径及名称
+* filepaths存储文件的路径及名称
 * ownname只存储文件的名称
 */
-void GetAllFiles(string path, vector<string>& files, vector<string> &ownname)
+template <class PointType>
+void dataIO<PointType>::GetAllFiles(string path, vector<string>& filepaths, vector<string> &ownname)
 {
 	//文件句柄  
 	intptr_t    hFile = 0; // win10
@@ -202,11 +206,11 @@ void GetAllFiles(string path, vector<string>& files, vector<string> &ownname)
 			if ((fileinfo.attrib &  _A_SUBDIR))
 			{
 				if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0)
-					GetAllFiles(p.assign(path).append("\\").append(fileinfo.name), files, ownname);
+					GetAllFiles(p.assign(path).append("\\").append(fileinfo.name), filepaths, ownname);
 			}
 			else
 			{
-				files.push_back(path + "\\" + fileinfo.name);
+				filepaths.push_back(path + "\\" + fileinfo.name);
 				ownname.push_back(fileinfo.name);
 			}
 		} while (_findnext(hFile, &fileinfo) == 0);
@@ -220,7 +224,7 @@ void GetAllFiles(string path, vector<string>& files, vector<string> &ownname)
 template <class PointType>
 void dataIO<PointType>::getAllFiles()
 {
-	GetAllFiles(path, files, ownnames);
+	dataIO<PointType>::GetAllFiles(path, filepaths, ownnames);
 }
 
 // image
@@ -230,20 +234,20 @@ void dataIO<PointType>::getAllFiles()
 template <class PointType>
 cv::Mat dataIO<PointType>::readImg(int flags)
 {
-	string openFilename = path + imgFilename;
+	string openFilename = path + filename;
 	cv::Mat img = cv::imread(openFilename,flags);
 	return img;
 }
 
 /*
 @param img Image you want to save.
-@param addName Name that will be insert into the end of file name and suffix name.
+@param addName Name that will be insert into the end of file's pure name and suffix name.
 */
 template <class PointType>
 bool dataIO<PointType>::saveImg(cv::Mat img, string addName)
 {
-	string pureName = imgFilename.substr(0, imgFilename.rfind("."));     // 获取不带后缀名的纯文件名 // rfind = reverse find
-	string suffix = imgFilename.substr(imgFilename.find_last_of('.') );  // 获取后缀名（获取txtFilename从最后一个点的位置开始直到最后的字符）
+	string pureName = filename.substr(0, filename.rfind("."));     // 获取不带后缀名的纯文件名 // rfind = reverse find
+	string suffix = filename.substr(filename.find_last_of('.') );  // 获取后缀名（获取filename从最后一个点的位置开始直到最后的字符）
 	if (savePath == "")
 		savePath = path;
 	string openFilename = savePath + pureName + addName + suffix;
@@ -255,7 +259,7 @@ bool dataIO<PointType>::saveImg(cv::Mat img, string addName)
 template <class PointType>
 pcl::PointCloud<PointType> dataIO<PointType>::readPC()
 {
-	string openFilename = path + pcFilename;
+	string openFilename = path + filename;
 	string cut = openFilename.substr(openFilename.find_last_of(".") + 1);
 	pcl::PointCloud<PointType> cloud;
 
@@ -269,13 +273,15 @@ pcl::PointCloud<PointType> dataIO<PointType>::readPC()
 
 /*
 @param cloud Cloud you want to save.
-@param addName Name that will be insert into the end of file name and suffix name.
+@param addName Name that will be insert into the end of file's pure name and suffix name.
+@param suffix The suffix can be set, in case variable filename is not a pcl point cloud file name, 
 */
 template <class PointType>
-void dataIO<PointType>::savePC(pcl::PointCloud<PointType> cloud, string addName)
+void dataIO<PointType>::savePC(pcl::PointCloud<PointType> cloud, string addName, string suffix)
 {
-	string pureName = pcFilename.substr(0, pcFilename.rfind("."));
-	string suffix = pcFilename.substr(pcFilename.find_last_of('.') );
+	string pureName = filename.substr(0, filename.rfind("."));
+	if (suffix == "")
+		suffix = filename.substr(filename.find_last_of('.'));
 	if (savePath == "")
 		savePath = path;
 	string openFilename = savePath + pureName + addName + suffix;
@@ -313,7 +319,7 @@ void dataIO<PointType>::PCrender(pcl::PointCloud<PointType> cloudView1, pcl::Poi
 		// 转换成pcl::PointCloud::Ptr形式
 		pcl::PointCloud<PointType>::Ptr cloud_Ptr1(new pcl::PointCloud<PointType>); cloud_Ptr1 = cloudView1.makeShared(); 
 		viewer->setBackgroundColor(rgb_bkg.x, rgb_bkg.y, rgb_bkg.z);
-		viewer->addPointCloud<pcl::PointXYZ>(cloud_Ptr1, "Cloud");
+		viewer->addPointCloud<PointType>(cloud_Ptr1, "Cloud");
 		// addText("string",x坐标，y坐标，字号，"id",r，g，b)  // 1/1/1是白色字体
 		viewer->addText(txt_v1, 10, 15, 16, rgb_txt_v1.x, rgb_txt_v1.y, rgb_txt_v1.z, "cloud");
 		viewer->addCoordinateSystem(coordinateScale);

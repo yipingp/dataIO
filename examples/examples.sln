@@ -13,6 +13,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PointCloudIO", "PointCloudI
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ExtractKeyptsIO", "ExtractKeyptsIO\ExtractKeyptsIO.vcxproj", "{20F7352F-9C44-469D-A0DF-37CDBDBBFAAB}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Pointcloud_from_RGBD_txt", "Pointcloud_from_RGBD_txt\Pointcloud_from_RGBD_txt.vcxproj", "{9F578C7A-B2D9-438A-811B-72EF70DCEE1C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -61,6 +63,14 @@ Global
 		{20F7352F-9C44-469D-A0DF-37CDBDBBFAAB}.Release|x64.Build.0 = Release|x64
 		{20F7352F-9C44-469D-A0DF-37CDBDBBFAAB}.Release|x86.ActiveCfg = Release|Win32
 		{20F7352F-9C44-469D-A0DF-37CDBDBBFAAB}.Release|x86.Build.0 = Release|Win32
+		{9F578C7A-B2D9-438A-811B-72EF70DCEE1C}.Debug|x64.ActiveCfg = Debug|x64
+		{9F578C7A-B2D9-438A-811B-72EF70DCEE1C}.Debug|x64.Build.0 = Debug|x64
+		{9F578C7A-B2D9-438A-811B-72EF70DCEE1C}.Debug|x86.ActiveCfg = Debug|Win32
+		{9F578C7A-B2D9-438A-811B-72EF70DCEE1C}.Debug|x86.Build.0 = Debug|Win32
+		{9F578C7A-B2D9-438A-811B-72EF70DCEE1C}.Release|x64.ActiveCfg = Release|x64
+		{9F578C7A-B2D9-438A-811B-72EF70DCEE1C}.Release|x64.Build.0 = Release|x64
+		{9F578C7A-B2D9-438A-811B-72EF70DCEE1C}.Release|x86.ActiveCfg = Release|Win32
+		{9F578C7A-B2D9-438A-811B-72EF70DCEE1C}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
