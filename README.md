@@ -1,206 +1,187 @@
 # dataIO
-Convenient data(including txt, OpenCV image, PCL point cloud) input and output, and convenient point cloud rendering.
+## Introduction
 
-Using dataIO class, you are able to instantly organize input and output files just by setting a main path. 
+A header only library for convenient coding.
 
-The features especially includes:  
-    1. ***Conveniently adding names after names of input files:*** for the purpose of distinguishing, for instance, "test.jpg" to "test_processed.jpg", "cloud.ply" to "cloud_aligned.ply", etc.  
-    2. ***Point cloud rendering: based on PCL(Point Cloud Library):*** using member function *PCrender(pointcloud1,...,pointcloud4)* to visualize up to 4 pointclouds without manually adjusting viewport. Additionally, parameters like color of backgournd, color of text, content of text, scale of coordinate are all adjustable as you wish.  
-    3. ***Massive data IO:*** getting all files in main path set by member variable *path* using member function *getAllFiles()*.  
-    4. For more features, please check the **examples**.
+### Supported features
+
+* Data (including txt, OpenCV image, PCL point cloud) input and output
+
+* Get files in a folder
+* Read/Write RGBD dataset
+* TCP/IP
+* Point cloud rendering.
+
+## Dependencies
+
+* Linux (tested on Ubuntu 18.04
+* OpenCV
+* PCL (only when PointCloud.hpp is included)
+
+## Usage
+
+### Read files from a folder
+
+```c++
+void dataIO::getAllFiles();
+```
+
+Complete version:
+
+```c++
+#include "dataIO.hpp"
+
+int main()
+{
+    dataIO files;
+    files.path=".";
+    files.getAllFiles();
+
+    // filename
+    for (auto ownname:files.ownnames)
+        cout << ownname << endl;
+
+    // directory + filename
+    for (auto filepath : files.filepaths)
+        cout << filepath << endl;
+}
+```
+### Read RGB-D dataset
+
+Reading from dataset [here](https://vision.in.tum.de/data/datasets/rgbd-dataset) or of your own (detailed below) is both available.
+
+```c++
+template <typename T>
+T dataIO::getImage<T>();
+T dataIO::getDepth<T>();
+```
+
+Complete version:
+
+``````c++
+#include "dataIO.hpp"
+
+int main()
+{
+    dataIO colorIO, depthIO;
+    colorIO.path = "RGBD_dataset"; // the folder of dataset
+    colorIO.filename = "rgb.txt";
+    depthIO.path = colorIO.path;
+    depthIO.filename = "depth.txt";
     
+    while(true)
+    {
+        cv::Mat color = colorIO.getImage<Mat>();
+        cv::Mat depth = depthIO.getDepth<Mat>();
+    }
+}
+``````
+
+### Write RGB-D dataset
+
+For users of RGB-D cameras, we create a dataset with the following structure under ```dataset_dir```.
+
+RGBD_dataset
+├── depth
+│   ├── 1.2.png
+│   ├── 2.2.png
+│   └── ...
+├── depth.txt
+├── rgb
+│   ├── 1.1.png
+│   ├── 2.1.png
+│   └── ...
+└── rgb.txt
+
+```c++
+#include "dataIO.hpp"
+
+/************Parameters************/
+string dataset_dir = ".";
+string dataset_folder = "RGBD_dataset";
+
+int main()
+{
+    dataIO files;
+    files.path = dataset_dir;
+    vector<string> colorNames, depthNames; // Names of color images and depth images
+
+    for (int i = 0; i < 10; i++)
+    {
+        files.save_RGBD_dataset(dataset_folder, colorNames, depthNames); // First we create a folder named RGBD_dataset under files.path
+
+        static int num_cnt = 1;
+        stringstream file_cnt;
+        file_cnt << num_cnt;
+        num_cnt++;
+        // ".1" is used to name color images, the first color image is named "1.1.png"
+        // ".2" is used to name depth images, the first color image is named "1.2.png"
+        string color_path = files.joinPath(files.path, dataset_folder) + "/" + files.joinPath("rgb", file_cnt.str()) + ".1.png";
+        string depth_path = files.joinPath(files.path, dataset_folder) + "/" + files.joinPath("depth", file_cnt.str()) + ".2.png";
+        colorNames.push_back(color_path);
+        depthNames.push_back(depth_path);
+
+        cv::Mat color;
+        cv::Mat depth;
+        /*
+        image caputring..
+        complemented by your own depending on your camera
+        */
+        cv::imwrite(color_path, color); // Write captured color image and depth image
+        cv::imwrite(depth_path, depth);
+    }
+    files.save_RGBD_dataset("RGBD_dataset", colorNames, depthNames); // write rgb.txt and depth.txt
+}
+```
+
+### TCP/IP Server
+
+```C++
+#include "dataIO.hpp"
+
+int main()
+{
+    dataIO files;
+    files.tcpipInit(6666); // SERVER_PORT is 6666
     
-# CV工程常用数据IO类（C++实现）)
-# 简介
-
-通过C++类模板来完成CV工程中常用数据（txt、图像、点云）的**快速读取**和带有添加标记的**快速保存**（如工程实践中，通常需要将保存的文件另外命名以作区别，如"test.jpg"保存为"test_saved.jpg"，"pointcloud.ply"在经过配准后保存为pointcloud_aligned.ply"，这仅仅需要使用类模板的成员函数saveImg(图像变量,"_saved")即可）。
-
-此外，该类模板还可以方便地完成**读取txt文件中的二维/三维坐标点**、**读取文件夹中所有文件**、**图像IO**、**点云IO和显示**。同时，**复杂文件命名情况的IO**也可以很方便地解决。
-
-# 读取txt文件中二维/三维坐标点
-
-```
-#include "..\..\dataIO.h"
-
-int main()
-{
-	dataIO<> files;
-	files.path = "..\\testSamples\\txt\\";
-
-	// 2d points
-	files.filename = "2d_Points.txt";
-	vector<cv::Point2f> Pts_2d = files.read2dPts();
-	cout << Pts_2d << endl << endl;
-	files.save2dPts(Pts_2d,"_saved");
-
-	// 3d points
-	files.filename = "3d_Points.txt";
-	vector<cv::Point3f> Pts_3d = files.read3dPts();
-	cout << Pts_3d;
-	files.save3dPts(Pts_3d, "_saved");
-
-	return 0;
+    // After connected
+    string str = "message";
+    files.tcpipSend(str); // Send message to cline
 }
 ```
-# 读取文件夹中所有文件
 
+### IO and visualization of point clouds
+
+```c++
+template <class PointType>
+void PointCloudIO::PCRender(pcl::PointCloud<PointType> cloudView1, pcl::PointCloud<PointType> cloudView2 = pcl::PointCloud<PointType>(), pcl::PointCloud<PointType> cloudView3 = pcl::PointCloud<PointType>(), pcl::PointCloud<PointType> cloudView4 = pcl::PointCloud<PointType>())
 ```
-#include "..\..\dataIO.h"
+
+Complete version:
+
+```c++
+#included "PointCloudIO.hpp"
+
+typedef pcl::PointXYZRGB PointT;
 
 int main()
 {
-	dataIO<> file;
-	file.path = "..\\testSamples\\img\\";
-	file.savePath = file.path + "res\\";  // .savePath will remain as defulat (equals to path) if not initialized. 
+	PointCloudIO<PointT> file;
+	file.path = "cloud_files";
 
-	// Get all files in .path, and processing them one by one.
-	file.getAllFiles();
-	for (int i = 0; i < file.ownnames.size(); i++)
-	{
-		file.filename = file.ownnames[i];
-		cv::Mat img = file.readImg();
-
-		// processing current img...
-
-		file.saveImg(img, "_processed");
-	}
-
-	return 0;
-}
-```
-# 图像IO
-
-```
-#include "..\..\dataIO.h"
-
-int main()
-{
-	dataIO<> file;
-	file.path = "..\\testSamples\\img\\";
-
-	file.filename = "img1.jpg";
-	cv::Mat img = file.readImg();
-
-	// processing img...
-
-	file.saveImg(img, "_processed");
-
-	return 0;
-}
-```
-# 点云IO和显示
-&emsp;&emsp;仅使用一行代码可以完成pcl::visualization::PCLVisualizer类的实例化，最多支持4组点云的自动viewport设置
-```
-file.PCrender(src, tgt, res, cloudEmpty);
-```
-
-&emsp;&emsp;完整代码如下。
-```
-#include "..\..\dataIO.h"
-
-typedef pcl::PointXYZ PointT;
-
-int main()
-{
-	dataIO<PointT> file;
-	file.path = "..\\testSamples\\pointcloud\\";
-
-	file.filename = "bun000.ply";
-	pcl::PointCloud<PointT> tgt = file.readPC();
-	file.filename = "bun045.ply";
-	pcl::PointCloud<PointT> src = file.readPC();
-	
-	pcl::PointCloud<PointT> res;
-	pcl::PointCloud<PointT> cloudEmpty;
-
-	// ICP aligning...
-	res = src + tgt; // Simulating ICP result
-
+	file.filename = "cloud1.ply"; pcl::PointCloud<PointT> cloud1 = file.readPC();
+	file.filename = "cloud2.ply"; pcl::PointCloud<PointT> cloud2 = file.readPC();
 
 	// optinal settings for PC rendering
 	/*
-	file.set_txt_content("src_cloud", "tgt_cloud", "res_cloud");												// set text content
-	file.set_txt_rgb(pcl::PointXYZ(0.7, 0.7, 0.7), pcl::PointXYZ(0.7, 0.7, 0.7), pcl::PointXYZ(0.7, 0.7, 0.7)); // set text color
-	file.rgb_bkg = pcl::PointXYZ(0.3, 0.3, 0.3);																// set backgound color
-	file.coordinateScale = 0.05;																				// set scale of coordinate
+	file.set_txt_content("cloud1", "cloud2"); // set text content respectively
+	file.set_txt_rgb(pcl::PointXYZ(0.7, 0.7, 0.7), pcl::PointXYZ(0.7, 0.7, 0.7)); // set text color respectively
+	file.rgb_bkg = pcl::PointXYZ(0.3, 0.3, 0.3); // set backgound color
+	file.coordinateScale = 0.05; // set scale of coordinate
 	*/
 
-	file.PCrender(src, tgt, res, cloudEmpty);
-	file.savePC(res, "_aligned");
+	file.PCrender(cloud1, cloud2); // 4 point clouds visualization at most
 
 	return 0;
 }
 ```
-
-# 复杂文件命名情况的IO
-&emsp;&emsp;这里，我们进行的是基于RGB-D和存于txt文件中RGB图上的二维特征点来进行特征点云的获取。
-
-&emsp;&emsp;当前需要进行读入的文件有：
-
-
- - **深度图**"depth3.png"
- ```
-files.filename = "depth3.png";
-cv::Mat depth = files.readImg();  // depth image
-```
- - **彩色图**"color3.png"
- ```
- files.filename = "color3.png";
-cv::Mat img = files.readImg();    // color image
-```
- - RGB图上的**二维特征点坐标**"color3_2D_keypoints.txt"
-```
-// 2d key points 
-// add "_2D_keypoints" after "color3" as txt file's name is color3_2D_keypoints
-vector<cv::Point2f> keypts = files.read2dPts("_2D_keypoints"); 
-```
-
-&emsp;&emsp;需要进行输出的有：
-
-- 存于txt文件的**三维特征点云坐标**（命名为"color3_keypoint_cloud.txt"）
-```
-files.save3dPts(keypts_3d, "_keypoint_cloud");
-```
-
-- **三维特征点云**（命名为"color3_keypoint_cloud.ply"）
-```
-// Force setting suffix to ".ply" as filename is currently "color3.png".
-files.savePC(cloud, "_keypoint_cloud", ".ply"); 
-```
-
-&emsp;&emsp;具体代码如下。
-```
-#include "..\..\dataIO.h"
-
-typedef pcl::PointXYZ PointT;
-
-// Generating 3d key point cloud (txt and pcl point cloud) from RGB-D image and 2d key points.
-// All you have to change is "depth3.png" and "color3.png" when input images vary.
-int main()
-{
-	dataIO<PointT> files;
-	files.path = "..\\testSamples\\keyPointcloud\\";
-
-	files.filename = "depth3.png";
-	cv::Mat depth = files.readImg();  // depth image
-
-	files.filename = "color3.png";
-	cv::Mat img = files.readImg();    // color image
-	vector<cv::Point2f> keypts = files.read2dPts("_2D_keypoints"); // 2d key points // add "_2D_keypoints" after "color3" as txt file's name is color3_2D_keypoints
-
-
-	// Generating 3d key point cloud (txt and pcl point cloud)...
-	vector<cv::Point3f> keypts_3d;
-	pcl::PointCloud<PointT> cloud; cloud.width = 1; cloud.height = 1; cloud.is_dense = false; cloud.points.resize(cloud.width * cloud.height);cloud.points[0].x = 1024 * rand() / (RAND_MAX + 1.0f);cloud.points[0].y = 1024 * rand() / (RAND_MAX + 1.0f);cloud.points[0].z = 1024 * rand() / (RAND_MAX + 1.0f);
-
-
-	// Saving...
-	files.save3dPts(keypts_3d, "_keypoint_cloud");
-	files.savePC(cloud, "_keypoint_cloud", ".ply"); // Force setting suffix to ".ply" as filename is currently "color3.png".
-
-	return 0;
-
-}
-```
-
-
