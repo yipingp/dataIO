@@ -16,7 +16,7 @@ A header only library for convenient coding.
 
 * Linux (tested on Ubuntu 18.04
 * OpenCV
-* PCL (only when PointCloud.hpp is included)
+* PCL (only required when PointCloud.hpp is included)
 
 ## Usage
 
@@ -48,7 +48,7 @@ int main()
 ```
 ### Read RGB-D dataset
 
-Reading from dataset [here](https://vision.in.tum.de/data/datasets/rgbd-dataset) or of your own (detailed below) is both available.
+Reading dataset downloaded from [here](https://vision.in.tum.de/data/datasets/rgbd-dataset) or of your own (detailed below) is both available.
 
 ```c++
 template <typename T>
