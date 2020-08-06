@@ -1,7 +1,7 @@
 # dataIO
 ## Introduction
 
-A header only library for convenient coding.
+A header only library for convenient coding in the field of computer vision.
 
 ### Supported features
 
@@ -16,7 +16,7 @@ A header only library for convenient coding.
 
 * Linux (tested on Ubuntu 18.04
 * OpenCV
-* PCL (only required when PointCloud.hpp is included)
+* PCL (only required when PointCloudIO.hpp is included)
 
 ## Usage
 
@@ -82,16 +82,27 @@ int main()
 For users of RGB-D cameras, we create a dataset with the following structure under ```dataset_dir```.
 
 RGBD_dataset
+
 ├── depth
+
 │   ├── 1.2.png
+
 │   ├── 2.2.png
+
 │   └── ...
+
 ├── depth.txt
+
 ├── rgb
+
 │   ├── 1.1.png
+
 │   ├── 2.1.png
+
 │   └── ...
+
 └── rgb.txt
+
 
 ```c++
 #include "dataIO.hpp"
@@ -146,7 +157,7 @@ int main()
     
     // After connected
     string str = "message";
-    files.tcpipSend(str); // Send message to cline
+    files.tcpipSend(str); // Send message to client
 }
 ```
 
@@ -180,7 +191,7 @@ int main()
 	file.coordinateScale = 0.05; // set scale of coordinate
 	*/
 
-	file.PCrender(cloud1, cloud2); // 4 point clouds visualization at most
+	file.PCrender(cloud1, cloud2); // 4 point clouds for visualization at most
 
 	return 0;
 }
