@@ -4,7 +4,7 @@ int main()
 {
     dataIO files;
     files.path=".";
-    files.getAllFiles();
+    files.getAllFiles(".txt");
 
     // filename
     for (auto ownname:files.ownnames)

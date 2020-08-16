@@ -1,11 +1,3 @@
-/*
-*Copyright: Copyright (c) 2019
-*Author: Yiping Peng
-*Date: 2019-08-22
-*Site: https://github.com/timeperiod/dataIO
-*Description: C++ template class of CV data IO
-*/
-
 #pragma once
 #ifndef _DATAIO_WITHPCL
 #define _DATAIO_WITHPCL

@@ -14,7 +14,7 @@ A header only library for convenient coding in the field of computer vision.
 
 ## Dependencies
 
-* Linux (tested on Ubuntu 18.04
+* Linux (tested on Ubuntu 18.04)
 * OpenCV
 * PCL (only required when PointCloudIO.hpp is included)
 
@@ -23,7 +23,7 @@ A header only library for convenient coding in the field of computer vision.
 ### Read files from a folder
 
 ```c++
-void dataIO::getAllFiles();
+void dataIO::getAllFiles(string suffix = "");
 ```
 
 Complete version:
@@ -35,7 +35,7 @@ int main()
 {
     dataIO files;
     files.path=".";
-    files.getAllFiles();
+    files.getAllFiles(".txt"); // Read files with specified suffix
 
     // filename
     for (auto ownname:files.ownnames)
@@ -61,10 +61,13 @@ Complete version:
 ``````c++
 #include "dataIO.hpp"
 
+/************Parameters************/
+string RGBD_dataset_folder_dir = "./RGBD_dataset";
+
 int main()
 {
     dataIO colorIO, depthIO;
-    colorIO.path = "RGBD_dataset"; // the folder of dataset
+    colorIO.path = RGBD_dataset_folder_dir;
     colorIO.filename = "rgb.txt";
     depthIO.path = colorIO.path;
     depthIO.filename = "depth.txt";
@@ -196,3 +199,4 @@ int main()
 	return 0;
 }
 ```
+
